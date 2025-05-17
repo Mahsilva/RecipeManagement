@@ -1,0 +1,261 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+            RecipeBook recipeBook = new RecipeBook(5);
+            Scanner scanner = new Scanner(System.in);
+
+        // Create ingredients for Recipe 1
+        Ingredient[] pancakeIngredients = {
+                new Ingredient("Flour", "1 cup"),
+                new Ingredient("Milk", "1 cup"),
+                new Ingredient("Egg", "1"),
+                new Ingredient("Sugar", "2 tbsp")
+        };
+
+        // Create instructions for Recipe 1
+        String[] pancakeInstructions = {
+                "Mix all ingredients in a bowl.",
+                "Heat a pan over medium heat.",
+                "Pour batter into the pan and cook until bubbles form.",
+                "Flip and cook the other side until golden brown."
+        };
+
+        // Create Recipe 1
+        Recipe pancakeRecipe = new Recipe("Pancakes", pancakeIngredients, pancakeInstructions);
+
+        // Create ingredients for Recipe 2
+        Ingredient[] omeletteIngredients = {
+                new Ingredient("Eggs", "3"),
+                new Ingredient("Milk", "2 tbsp"),
+                new Ingredient("Salt", "1 pinch"),
+                new Ingredient("Pepper", "1 pinch")
+        };
+
+        // Create instructions for Recipe 2
+        String[] omeletteInstructions = {
+                "Beat eggs and milk in a bowl.",
+                "Add salt and pepper.",
+                "Pour mixture into a heated pan.",
+                "Cook until edges lift, then fold and serve."
+        };
+
+        // Create Recipe 2
+        Recipe omeletteRecipe = new Recipe("Omelette", omeletteIngredients, omeletteInstructions);
+
+        // Add recipes to RecipeBook
+        recipeBook.addRecipe(pancakeRecipe);
+        recipeBook.addRecipe(omeletteRecipe);
+
+        // Print all recipes
+        recipeBook.printAllRecipes();
+
+        // Find and print a specific recipe
+        Recipe foundRecipe = recipeBook.findRecipe("Pancakes");
+        System.out.println("=== Searching for Pancakes ===");
+        recipeBook.printRecipe(foundRecipe);
+
+        // Remove a recipe
+        recipeBook.removeRecipe("Omelette");
+
+        // Print all recipes after removal
+        recipeBook.printAllRecipes();
+    }
+}
+
+        class Ingredient {
+            private String name;
+            private String quantity;
+
+            // Default constructor
+            public Ingredient() {
+                this.name = "Unknown";
+                this.quantity = "0";
+            }
+
+            // Parameterized constructor
+            public Ingredient(String name, String quantity) {
+                this.name = name;
+                this.quantity = quantity;
+            }
+
+            // Getters
+            public String getName() {
+                return name;
+            }
+
+            public String getQuantity() {
+                return quantity;
+            }
+
+            // Setters
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public void setQuantity(String quantity) {
+                this.quantity = quantity;
+            }
+
+            @Override
+            public String toString() {
+                return quantity + " of " + name;
+            }
+        }
+
+        // Recipe class to represent a single recipe
+        class Recipe {
+            private String name;
+            private Ingredient[] ingredients;
+            private String[] instructions;
+
+            // Default constructor
+            public Recipe() {
+                this.name = "Unnamed Recipe";
+                this.ingredients = new Ingredient[0];
+                this.instructions = new String[0];
+            }
+
+            // Parameterized constructor
+            public Recipe(String name, Ingredient[] ingredients, String[] instructions) {
+                this.name = name;
+                this.ingredients = ingredients != null ? ingredients : new Ingredient[0];
+                this.instructions = instructions != null ? instructions : new String[0];
+            }
+
+            // Getters
+            public String getName() {
+                return name;
+            }
+
+            public Ingredient[] getIngredients() {
+                return ingredients;
+            }
+
+            public String[] getInstructions() {
+                return instructions;
+            }
+
+            // Setters
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public void setIngredients(Ingredient[] ingredients) {
+                this.ingredients = ingredients != null ? ingredients : new Ingredient[0];
+            }
+
+            public void setInstructions(String[] instructions) {
+                this.instructions = instructions != null ? instructions : new String[0];
+            }
+        }
+
+        // RecipeBook class that inherits from Recipe
+        class RecipeBook extends Recipe {
+            private Recipe[] recipes;
+            private int recipeCount;
+
+            // Default constructor
+            public RecipeBook() {
+                this.recipes = new Recipe[10]; // Default capacity
+                this.recipeCount = 0;
+            }
+
+            // Parameterized constructor
+            public RecipeBook(int capacity) {
+                this.recipes = new Recipe[capacity > 0 ? capacity : 10];
+                this.recipeCount = 0;
+            }
+
+            // Add a new recipe to the RecipeBook
+            public void addRecipe(Recipe recipe) {
+                if (recipe == null) {
+                    System.out.println("Cannot add null recipe.");
+                    return;
+                }
+
+                // Check if array is full, resize if necessary
+                if (recipeCount >= recipes.length) {
+                    recipes = Arrays.copyOf(recipes, recipes.length * 2);
+                }
+
+                recipes[recipeCount] = recipe;
+                recipeCount++;
+                System.out.println("Recipe '" + recipe.getName() + "' added successfully.");
+            }
+
+            // Remove a recipe by name
+            public void removeRecipe(String recipeName) {
+                if (recipeName == null || recipeName.trim().isEmpty()) {
+                    System.out.println("Invalid recipe name.");
+                    return;
+                }
+
+                for (int i = 0; i < recipeCount; i++) {
+                    if (recipes[i].getName().equalsIgnoreCase(recipeName)) {
+                        // Shift elements to fill the gap
+                        for (int j = i; j < recipeCount - 1; j++) {
+                            recipes[j] = recipes[j + 1];
+                        }
+                        recipes[recipeCount - 1] = null;
+                        recipeCount--;
+                        System.out.println("Recipe '" + recipeName + "' removed successfully.");
+                        return;
+                    }
+                }
+                System.out.println("Recipe '" + recipeName + "' not found.");
+            }
+
+            // Find a recipe by name
+            public Recipe findRecipe(String recipeName) {
+                if (recipeName == null || recipeName.trim().isEmpty()) {
+                    return null;
+                }
+
+                for (int i = 0; i < recipeCount; i++) {
+                    if (recipes[i].getName().equalsIgnoreCase(recipeName)) {
+                        return recipes[i];
+                    }
+                }
+                return null;
+            }
+
+            // Print details of a specific recipe
+            public void printRecipe(Recipe recipe) {
+                if (recipe == null) {
+                    System.out.println("Recipe not found.");
+                    return;
+                }
+
+                System.out.println("\n=== Recipe: " + recipe.getName() + " ===");
+                System.out.println("Ingredients:");
+                for (Ingredient ingredient : recipe.getIngredients()) {
+                    if (ingredient != null) {
+                        System.out.println("- " + ingredient);
+                    }
+                }
+                System.out.println("\nInstructions:");
+                for (int i = 0; i < recipe.getInstructions().length; i++) {
+                    if (recipe.getInstructions()[i] != null) {
+                        System.out.println((i + 1) + ". " + recipe.getInstructions()[i]);
+                    }
+                }
+                System.out.println();
+            }
+
+            // Print all recipes in the RecipeBook
+            public void printAllRecipes() {
+                if (recipeCount == 0) {
+                    System.out.println("No recipes available in the RecipeBook.");
+                    return;
+                }
+
+                System.out.println("\n=== All Recipes in RecipeBook ===");
+                for (int i = 0; i < recipeCount; i++) {
+                    printRecipe(recipes[i]);
+                }
+            }
+        }
